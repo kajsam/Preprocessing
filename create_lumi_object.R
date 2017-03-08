@@ -2,7 +2,7 @@
 #' title: "Lung cancer lumi object included pooled samples"
 #' author: "Kajsa Mollersen"
 #' date: "02/03/2017"
-#' output: pdf_document
+#' output: html_document
 #' ---
 
 #' I found, in the R package 'nowac' a file named 'generate_all_datasets.R'. There I discovered that there
@@ -186,12 +186,12 @@ fix_troubled_file <- function(filename,
 # Lung cancer data set 
 
 #+ finnish, message = FALSE
-generate_dataset_file(input_path="/Volumes/kam025/Documents/LungCancer/Preprocessing/ReadData/",
+generate_dataset_file(input_path="/Volumes/kam025/Documents/LungCancer/Discrete_curve_group_NR_method/Preprocessing/ReadData/",
                       exprs_filename="SCannGCF373_Sample_Probe_Profile.txt",
                       overview_filename="OVERSIKT_RNA_cRNA_GCF373_2015_SendesTromso.csv", 
                       samplesheet_filename="GCF_2015_373_SampleSheet_Tromso.csv",
                       ctrl_data_filename="TableControl.txt",
                       remove_suffix=NULL,
                       bad_samples=NULL, 
-                      output_path="/Volumes/kam025/Documents/LungCancer/Preprocessing/",
+                      output_path="/Volumes/kam025/Documents/LungCancer/Discrete_curve_group_NR_method/Preprocessing/ReadData/",
                       output_filename="LungCancerPooled.RData")

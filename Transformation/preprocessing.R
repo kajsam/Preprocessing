@@ -2,7 +2,7 @@
 #' title: "Prepocessing lung cancer data included pooled samples"
 #' author: "Kajsa Mollersen"
 #' date: "02/03/2017"
-#' output: html_document
+#' output: pdf_document
 #' ---
 
 #' We're doing here several preprocessings. The preprocessing has two different things going on: (1) Transform the expression

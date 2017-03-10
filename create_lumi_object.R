@@ -2,7 +2,7 @@
 #' title: "Lung cancer lumi object included pooled samples"
 #' author: "Kajsa Mollersen"
 #' date: "02/03/2017"
-#' output: html_document
+#' output: pdf_document
 #' ---
 
 #' I found, in the R package 'nowac' a file named 'generate_all_datasets.R'. There I discovered that there

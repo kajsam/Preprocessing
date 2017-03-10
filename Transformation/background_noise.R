@@ -27,6 +27,9 @@ load(paste(datapath,"LungCancerPooled.RData", sep = ""))
 ls()
 ctrlData <- controlData(lobj)
 negCtrl <- ctrlData[ctrlData[,1]=="NEGATIVE",]
+
+pool = which(grepl("POOL",colnames(negCtrl)));
+
 negCtrl <- negCtrl[,-(1:2)]
 n_sam <- dim(negCtrl)[2]
 n_obs <- dim(negCtrl)[1]
@@ -42,8 +45,9 @@ write.csv(strCtrl, file="str_ctrls.csv") # so that I can do some of it in MatLab
 probCtrl <- exprs(lobj)
 write.csv(probCtrl, file="prob_ctrls.csv") # so that I can do some of it in MatLab
 
-
-# write.csv(negCtrl, file="neg_ctrls.csv") # so that I can do some of it in MatLab
+negCtrl_unpooled <- negCtrl[,-pool]
+dim(negCtrl_unpooled)
+write.csv(negCtrl, file="neg_ctrls.csv") # so that I can do some of it in MatLab
 
 #' #' I suspect that the negative controls are not Gaussian distributed, as 'everyone' assumes without stating
 #' #' it explicitly

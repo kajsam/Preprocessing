@@ -42,12 +42,12 @@ strCtrl <- ctrlData[ctrlData[,1]=="LOW_STRINGENCY_HYB",]
 strCtrl <- strCtrl[,-(1:2)]
 write.csv(strCtrl, file="str_ctrls.csv") # so that I can do some of it in MatLab
 
-probCtrl <- exprs(lobj)
-write.csv(probCtrl, file="prob_ctrls.csv") # so that I can do some of it in MatLab
+probReg <- exprs(lobj)
+write.csv(probReg, file="prob_reg.csv") # so that I can do some of it in MatLab
 
 negCtrl_unpooled <- negCtrl[,-pool]
 dim(negCtrl_unpooled)
-write.csv(negCtrl, file="neg_ctrls.csv") # so that I can do some of it in MatLab
+write.csv(negCtrl_unpooled, file="neg_ctrls.csv") # so that I can do some of it in MatLab
 
 #' #' I suspect that the negative controls are not Gaussian distributed, as 'everyone' assumes without stating
 #' #' it explicitly

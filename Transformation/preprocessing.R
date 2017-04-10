@@ -48,6 +48,9 @@ negCtrl <- ctrlData[ctrlData[,1]=="NEGATIVE",]
 negCtrl <- negCtrl[,-(1:2)]
 dim(negCtrl)
 
+write_datapath <- "/Volumes/kam025/Documents/LungCancer/Discrete_curve_group_NR_method/Preprocessing/Transformation/"
+setwd(write_datapath)
+
 #' This transformation includes background correction using negative controls, normexp transformation, and quantile 
 #' normalisation (not using positive controls, why?). 
 #+ Normexp_i
@@ -60,6 +63,7 @@ nec.obj <- lobj
 exprs(nec.obj) <- exprs.nec 
 # quantile normalisation of the backgr.corr. + normexp exprs values
 norm.obj <- lumiN(nec.obj,method= "quantile") 
+dim(norm.obj)
 
 #' We plot the three versions of the expression values. I am not sure what I am looking for
 #+ plotNormexp
@@ -114,4 +118,14 @@ dim(present.obj)
 
 #' Saving Normexp(iii):  
 #+ saveNormexp_Presentsize
-save(ok.obj, file="Normexp_Present.RData")
+save(present.obj, file="Normexp_Present.RData")
+
+#' Have added a check after Therese discovered that I had managed to save the same lumi object to two different files.
+rm(list = ls())
+load("Normexp_Full.RData")
+load("Normexp_Illumina.RData")
+load("Normexp_Present.RData")
+ls()
+dim(norm.obj)
+dim(ok.obj)
+dim(present.obj)

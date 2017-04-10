@@ -9,7 +9,7 @@ negCtrl = csvread('/Volumes/kam025/Documents/LungCancer/Discrete_curve_group_NR_
 size(negCtrl)
 
 % These are the 47' regular probes found on each chip
-regular = csvread('/Volumes/kam025/Documents/LungCancer/Discrete_curve_group_NR_method/Preprocessing/prob_reg.csv',1,1);
+regular = csvread('/Volumes/kam025/Documents/LungCancer/Discrete_curve_group_NR_method/Preprocessing/regular_probes.csv',1,1);
 size(regular)
 
  

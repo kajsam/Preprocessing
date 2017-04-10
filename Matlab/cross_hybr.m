@@ -24,7 +24,7 @@ start = 'randSample'; % Starting points.
 covtype = 'full';
 options = statset('MaxIter',maxiter); 
 
-K_min = 1; K_max = 4; % Which number of components to check
+K_min = 1; K_max = 5 % Which number of components to check
 
 n_ladies = size(negCtrl,2)
 n_probes = size(negCtrl,1)
@@ -56,29 +56,31 @@ for j = 1: n_ladies
   % highest value?
   max1_neg_probes_idx(j) = xidx(end);
   
-  
   if mod(j,10)==0
-    K_min = 1; K_max = 1;
+    
     % Fitting a GMM to neg ctrls
     fit_distr = cell(1,K_max-K_min+1);
     BIC = zeros(1,K_max-K_min+1);
+    AIC = zeros(1,K_max-K_min+1);
     for k = K_min: K_max
       fit_distr{k} = fitgmdist(x,k,'Regularize',reg,'Options',options,'Replicates',reps, ...
                                'ProbabilityTolerance',probtol,'Start',start,...
                                'CovarianceType',covtype);
       BIC(k) = fit_distr{k}.BIC;
+      AIC(k) = fit_distr{k}.AIC;
     end
   
-    k_new = BIC==min(BIC(K_min:K_max));
-    BIC
-    distr = fit_distr{k_new};
+    k_BIC = BIC==min(BIC(K_min:K_max));
+    k_AIC = AIC==min(AIC(K_min:K_max));
+    distr = fit_distr{k_BIC};
   
     [~,idxC] = sort(distr.PComponents);
     [~,idxM] = sort(distr.mu,'descend');
     sigm = squeeze(distr.Sigma)';
   
-    k = find(k_new);
-    dis(:,j) = [k min(distr.PComponents)]';
+    kBIC = find(k_BIC);
+    kAIC = find(k_AIC);
+    dis(:,j) = [kBIC min(distr.PComponents)]';
   
 %     % If the smallest component also has the highest mean
 %     if idxC(1)==idxM(1)
@@ -96,6 +98,9 @@ for j = 1: n_ladies
     pdf_plot = pdf(distr,(min(x):0.1:max(x))');
     clf(figure(1)), subplot(1,3,1), histogram(x,'Normalization','pdf'), hold on
     plot((min(x):0.1:max(x))',pdf_plot)
+    subplot(1,3,2), hold on, plot(BIC), plot(AIC,'r')
+    xlabel([kBIC kAIC]')
+    pause
   end
   
   if reg_probe

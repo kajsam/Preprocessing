@@ -24,6 +24,7 @@ library(illuminaHumanv4.db)
 #+ readdata
 datapath <- "/Volumes/kam025/Documents/LungCancer/Discrete_curve_group_NR_method/Preprocessing/ReadData/"
 load(paste(datapath,"LungCancerPooled.RData", sep = ""))
+savepath <- "/Volumes/kam025/Documents/LungCancer/Discrete_curve_group_NR_method/Preprocessing/"
 ls()
 ctrlData <- controlData(lobj)
 negCtrl <- ctrlData[ctrlData[,1]=="NEGATIVE",]
@@ -36,18 +37,18 @@ n_obs <- dim(negCtrl)[1]
 
 houseCtrl <- ctrlData[ctrlData[,1]=="HOUSEKEEPING",]
 houseCtrl <- houseCtrl[,-(1:2)]
-write.csv(houseCtrl, file="house_ctrls.csv") # so that I can do some of it in MatLab
+write.csv(houseCtrl, file=paste(savepath,"housekeeping_ctrls.csv", sep = "")) # so that I can do some of it in MatLab
 
 strCtrl <- ctrlData[ctrlData[,1]=="LOW_STRINGENCY_HYB",]
 strCtrl <- strCtrl[,-(1:2)]
-write.csv(strCtrl, file="str_ctrls.csv") # so that I can do some of it in MatLab
+write.csv(strCtrl, file=paste(savepath,"lowstringency_ctrls.csv", sep = "")) # so that I can do some of it in MatLab
 
 probReg <- exprs(lobj)
-write.csv(probReg, file="prob_reg.csv") # so that I can do some of it in MatLab
+write.csv(probReg, file=paste(savepath,"regular_probes.csv", sep = "")) # so that I can do some of it in MatLab
 
 negCtrl_unpooled <- negCtrl[,-pool]
 dim(negCtrl_unpooled)
-write.csv(negCtrl_unpooled, file="neg_ctrls.csv") # so that I can do some of it in MatLab
+write.csv(negCtrl_unpooled, file=paste(savepath,"neg_ctrls.csv",sep = "")) # so that I can do some of it in MatLab
 
 #' #' I suspect that the negative controls are not Gaussian distributed, as 'everyone' assumes without stating
 #' #' it explicitly

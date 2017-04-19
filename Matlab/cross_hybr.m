@@ -1,6 +1,6 @@
 function N10 = cross_hybr(negCtrl,regular)
 
-reg_probe = 1 
+reg_probe = 0 
 
 % Taking a look at the means of probes
 mean_negCtrl = mean(negCtrl,2);     % mean of each neg ctrl
@@ -37,7 +37,7 @@ min_neg_probes_idx = zeros(10*n_ladies);
 
 max5_neg_probes_idx = zeros(5*n_ladies);
 max1_neg_probes_idx = zeros(1*n_ladies);
-
+t = 0;
 m = 10;
 for j = 1: n_ladies
   
@@ -56,7 +56,8 @@ for j = 1: n_ladies
   % highest value?
   max1_neg_probes_idx(j) = xidx(end);
   
-  if mod(j,10)==0
+  if mod(j,100)==0
+      t = t+1
     
     % Fitting a GMM to neg ctrls
     fit_distr = cell(1,K_max-K_min+1);
@@ -64,7 +65,7 @@ for j = 1: n_ladies
     AIC = zeros(1,K_max-K_min+1);
     for k = K_min: K_max
       fit_distr{k} = fitgmdist(x,k,'Regularize',reg,'Options',options,'Replicates',reps, ...
-                               'ProbabilityTolerance',probtol,'Start',start,...
+                              'Start',start,... % 'ProbabilityTolerance',probtol,
                                'CovarianceType',covtype);
       BIC(k) = fit_distr{k}.BIC;
       AIC(k) = fit_distr{k}.AIC;
@@ -96,11 +97,16 @@ for j = 1: n_ladies
       
     % Display normalised histogram and fitted GMM
     pdf_plot = pdf(distr,(min(x):0.1:max(x))');
-    clf(figure(1)), subplot(1,3,1), histogram(x,'Normalization','pdf'), hold on
+    figure(6), histogram(x,'Normalization','pdf'), hold on
     plot((min(x):0.1:max(x))',pdf_plot)
-    subplot(1,3,2), hold on, plot(BIC), plot(AIC,'r')
+    %subplot(1,3,2), hold on, plot(BIC), plot(AIC,'r')
     xlabel([kBIC kAIC]')
-    pause
+    
+    figure(6+t), histogram(x,'Normalization','pdf'), hold on
+    plot((min(x):0.1:max(x))',pdf_plot)
+    %subplot(1,3,2), hold on, plot(BIC), plot(AIC,'r')
+    xlabel([kBIC kAIC]')
+    
   end
   
   if reg_probe
@@ -114,7 +120,7 @@ for j = 1: n_ladies
       BIC = zeros(1,K_max-K_min+1);
       for k = K_min: K_max
         fit_distr{k} = fitgmdist(x,k,'Regularize',reg,'Options',options,'Replicates',reps, ...
-                                 'ProbabilityTolerance',probtol,'Start',start,...
+                                 'Start',start,... % 'ProbabilityTolerance',probtol,
                                  'CovarianceType',covtype);
         BIC(k) = fit_distr{k}.BIC;
       end

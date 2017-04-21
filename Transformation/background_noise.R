@@ -50,6 +50,9 @@ negCtrl_unpooled <- negCtrl[,-pool]
 dim(negCtrl_unpooled)
 write.csv(negCtrl_unpooled, file=paste(savepath,"neg_ctrls.csv",sep = "")) # so that I can do some of it in MatLab
 
+# Keeping track of the labnr's as well
+
+
 #' #' I suspect that the negative controls are not Gaussian distributed, as 'everyone' assumes without stating
 #' #' it explicitly
 #' #+ visual_inspection

@@ -1,11 +1,15 @@
-function N10 = cross_hybr(negCtrl,regular)
+function [N10, medABIC] = cross_hybr(negCtrl,regular, display_lads, step)
 
-reg_probe = 0 
+reg_probe = 0; 
 
 % Taking a look at the means of probes
 mean_negCtrl = mean(negCtrl,2);     % mean of each neg ctrl
-meen_negCtrl = mean(mean_negCtrl)   % total mean of neg ctrl
-max_mean_negCtrl = max(mean_negCtrl) % maximum of mean of each neg ctrl
+meen_negCtrl = mean(mean_negCtrl);   % total mean of neg ctrl
+max_mean_negCtrl = prctile(mean_negCtrl,90); % maximum of mean of each neg ctrl
+min_mean_negCtrl = prctile(mean_negCtrl,10); % maximum of mean of each neg ctrl
+[min_mean_negCtrl meen_negCtrl max_mean_negCtrl;
+ min_mean_negCtrl-meen_negCtrl 0 max_mean_negCtrl-meen_negCtrl]
+
 
 mean_regular = mean(regular,2);     % mean of each regular probe
 [sort_mean_regular,mu_idx] = sort(mean_regular); % sorted
@@ -19,16 +23,18 @@ mu_start  = find(sort_mean_regular > meen_negCtrl,1);
 maxiter = 500;  % Maximum number of iterations.
 reps = 5; % Number of repetitions. For each rep, a new starting point.
 reg = 1e-6; % Avoiding non-invertible matrices
-probtol = 1e-6; % Stopping critetion
+probtol = 1e-8; % Stopping critetion
 start = 'randSample'; % Starting points. 
 covtype = 'full';
 options = statset('MaxIter',maxiter); 
 
-K_min = 1; K_max = 5 % Which number of components to check
+K_min = 1; K_max = 5; % Which number of components to check
 
-n_ladies = size(negCtrl,2)
-n_probes = size(negCtrl,1)
+n_ladies = size(negCtrl,2);
+n_probes = size(negCtrl,1);
 dis = zeros(2,n_ladies);
+
+
 
 max10_neg_probes_idx = zeros(10*n_ladies);
 med_neg_probes_idx = zeros(10*n_ladies);
@@ -39,6 +45,8 @@ max5_neg_probes_idx = zeros(5*n_ladies);
 max1_neg_probes_idx = zeros(1*n_ladies);
 t = 0;
 m = 10;
+BICvec = zeros(1,n_ladies);
+AICvec = zeros(1,n_ladies);
 for j = 1: n_ladies
   
   x = negCtrl(:,j);  % neg ctrl values for lady nr j
@@ -56,8 +64,7 @@ for j = 1: n_ladies
   % highest value?
   max1_neg_probes_idx(j) = xidx(end);
   
-  if mod(j,100)==0
-      t = t+1
+  
     
     % Fitting a GMM to neg ctrls
     fit_distr = cell(1,K_max-K_min+1);
@@ -65,7 +72,7 @@ for j = 1: n_ladies
     AIC = zeros(1,K_max-K_min+1);
     for k = K_min: K_max
       fit_distr{k} = fitgmdist(x,k,'Regularize',reg,'Options',options,'Replicates',reps, ...
-                              'Start',start,... % 'ProbabilityTolerance',probtol,
+                              'Start',start,'ProbabilityTolerance',probtol, ...
                                'CovarianceType',covtype);
       BIC(k) = fit_distr{k}.BIC;
       AIC(k) = fit_distr{k}.AIC;
@@ -74,6 +81,8 @@ for j = 1: n_ladies
     k_BIC = BIC==min(BIC(K_min:K_max));
     k_AIC = AIC==min(AIC(K_min:K_max));
     distr = fit_distr{k_BIC};
+    
+
   
     [~,idxC] = sort(distr.PComponents);
     [~,idxM] = sort(distr.mu,'descend');
@@ -82,6 +91,9 @@ for j = 1: n_ladies
     kBIC = find(k_BIC);
     kAIC = find(k_AIC);
     dis(:,j) = [kBIC min(distr.PComponents)]';
+    
+        BICvec(j) = kBIC;
+    AICvec(j) = kAIC;
   
 %     % If the smallest component also has the highest mean
 %     if idxC(1)==idxM(1)
@@ -95,17 +107,22 @@ for j = 1: n_ladies
 %       j
 %     end
       
+  if j == display_lads(1) || j == display_lads(2)
+      t = t+1;
     % Display normalised histogram and fitted GMM
     pdf_plot = pdf(distr,(min(x):0.1:max(x))');
-    figure(6), histogram(x,'Normalization','pdf'), hold on
-    plot((min(x):0.1:max(x))',pdf_plot)
+    figure(6), subplot(1,2,1), histogram(x,'Normalization','pdf'), hold on
+    subplot(1,2,2), hold on, plot((min(x):0.1:max(x))',pdf_plot)
     %subplot(1,3,2), hold on, plot(BIC), plot(AIC,'r')
-    xlabel([kBIC kAIC]')
+    [kBIC kAIC];
     
-    figure(6+t), histogram(x,'Normalization','pdf'), hold on
-    plot((min(x):0.1:max(x))',pdf_plot)
+    figure(6+t), subplot(1,3,1), histogram(x,'Normalization','pdf'), hold on
+    subplot(1,3,2), hold on, plot((min(x):0.1:max(x))',pdf_plot)
+    figure,  plot((min(x):0.1:max(x))',pdf_plot), hold on, 
+                    plot((max(x):-0.1:min(x))',pdf_plot)
+                    xlabel(step)
     %subplot(1,3,2), hold on, plot(BIC), plot(AIC,'r')
-    xlabel([kBIC kAIC]')
+    [kBIC kAIC];
     
   end
   
@@ -177,23 +194,26 @@ for j = 1: n_ladies
   end
 end
 
+medABIC = [median(BICvec) median(AICvec)]
+[prctile(BICvec,75) prctile(BICvec,90) prctile(AICvec,75) prctile(AICvec,90)]
+
 % Which neg ctrl probes have high values?
-  figure(2), subplot(1,3,1), histogram(max10_neg_probes_idx,1:n_probes), xlabel('High 10')
+  figure, subplot(1,3,1), histogram(max10_neg_probes_idx,1:n_probes), xlabel('High 10')
   % median values?
-  figure(2), subplot(1,3,2), histogram(med_neg_probes_idx,1:n_probes), xlabel('Median')
+  subplot(1,3,2), histogram(med_neg_probes_idx,1:n_probes), xlabel('Median')
   % low values?
-  figure(2), subplot(1,3,3), histogram(min_neg_probes_idx,1:n_probes), xlabel('Low')
+  subplot(1,3,3), histogram(min_neg_probes_idx,1:n_probes), xlabel('Low')
   
   % Which neg ctrl probes have 10 high values?
-  figure(3), subplot(1,3,1), histogram(max10_neg_probes_idx,1:n_probes), xlabel('High 10')
+  figure, subplot(1,3,1), histogram(max10_neg_probes_idx,1:n_probes), xlabel('High 10')
   [N10,~] = histcounts(max10_neg_probes_idx,1:n_probes);
   [~,idx10] = sort(N10,'descend');
   % 5 high values?
-  figure(3), subplot(1,3,2), histogram(max5_neg_probes_idx,1:n_probes), xlabel('High 5')
+  subplot(1,3,2), histogram(max5_neg_probes_idx,1:n_probes), xlabel('High 5')
   [N5,~] = histcounts(max5_neg_probes_idx,1:n_probes);
   [~,idx5] = sort(N5,'descend');
   % highest value?
-  figure(3), subplot(1,3,3), histogram(max1_neg_probes_idx,1:n_probes), xlabel('High 1')
+  subplot(1,3,3), histogram(max1_neg_probes_idx,1:n_probes), xlabel('High 1')
   [N1,~] = histcounts(max1_neg_probes_idx,1:n_probes);
   [~,idx1] = sort(N1,'descend');
   
@@ -201,6 +221,6 @@ end
   % k/n_ladies trials is very low (< 0.01), the neg ctrl is excluded. k is
   % calculated by 1-binocdf(k,N,p) = 0.01, where p = 10/n_probes, N = 272; 
   
-  save_to_base(1)
+  % save_to_base(1)
    
   

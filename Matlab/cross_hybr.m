@@ -5,10 +5,12 @@ reg_probe = 0;
 % Taking a look at the means of probes
 mean_negCtrl = mean(negCtrl,2);     % mean of each neg ctrl
 meen_negCtrl = mean(mean_negCtrl);   % total mean of neg ctrl
-max_mean_negCtrl = prctile(mean_negCtrl,90); % maximum of mean of each neg ctrl
-min_mean_negCtrl = prctile(mean_negCtrl,10); % maximum of mean of each neg ctrl
-[min_mean_negCtrl meen_negCtrl max_mean_negCtrl;
- min_mean_negCtrl-meen_negCtrl 0 max_mean_negCtrl-meen_negCtrl]
+max_mean_negCtrl = max(mean_negCtrl); % maximum of mean of each neg ctrl
+min_mean_negCtrl = min(mean_negCtrl); % maximum of mean of each neg ctrl
+max90_mean_negCtrl = prctile(mean_negCtrl,90); % upper 10 of mean of each neg ctrl
+min10_mean_negCtrl = prctile(mean_negCtrl,10); % lower 10 of mean of each neg ctrl
+[min_mean_negCtrl meen_negCtrl max_mean_negCtrl]
+[min_mean_negCtrl-meen_negCtrl min10_mean_negCtrl-meen_negCtrl 0 max90_mean_negCtrl-meen_negCtrl max_mean_negCtrl-meen_negCtrl]
 
 
 mean_regular = mean(regular,2);     % mean of each regular probe
@@ -20,7 +22,7 @@ mu_start  = find(sort_mean_regular > meen_negCtrl,1);
 [mean_regular(mu_idx(mu_start:mu_start+9)) mean_negCtrl(1:10)];
 
 % Parameters for the EM-algorithm:  
-maxiter = 500;  % Maximum number of iterations.
+maxiter = 1000;  % Maximum number of iterations.
 reps = 5; % Number of repetitions. For each rep, a new starting point.
 reg = 1e-6; % Avoiding non-invertible matrices
 probtol = 1e-8; % Stopping critetion
@@ -55,9 +57,9 @@ for j = 1: n_ladies
   % Which neg ctrl probes have high values?
   max10_neg_probes_idx((j-1)*m+1:m*j) = xidx(end-(m-1):end);
   % median values?
-  med_neg_probes_idx((j-1)*m+1:m*j) = xidx(floor(n_probes/2)-4:floor(n_probes/2)+5);
+  med10_neg_probes_idx((j-1)*m+1:m*j) = xidx(floor(n_probes/2)-4:floor(n_probes/2)+5);
   % low values?
-  min_neg_probes_idx((j-1)*m+1:m*j) = xidx(1:m);
+  min10_neg_probes_idx((j-1)*m+1:m*j) = xidx(1:m);
   
   % Which neg ctrl probes have 5 high values?
   max5_neg_probes_idx((j-1)*5+1:5*j) = xidx(end-(5-1):end);
@@ -200,9 +202,9 @@ medABIC = [median(BICvec) median(AICvec)]
 % Which neg ctrl probes have high values?
   figure, subplot(1,3,1), histogram(max10_neg_probes_idx,1:n_probes), xlabel('High 10')
   % median values?
-  subplot(1,3,2), histogram(med_neg_probes_idx,1:n_probes), xlabel('Median')
+  subplot(1,3,2), histogram(med10_neg_probes_idx,1:n_probes), xlabel('Median 10')
   % low values?
-  subplot(1,3,3), histogram(min_neg_probes_idx,1:n_probes), xlabel('Low')
+  subplot(1,3,3), histogram(min10_neg_probes_idx,1:n_probes), xlabel('Low 10')
   
   % Which neg ctrl probes have 10 high values?
   figure, subplot(1,3,1), histogram(max10_neg_probes_idx,1:n_probes), xlabel('High 10')

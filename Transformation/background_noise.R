@@ -29,9 +29,8 @@ ls()
 ctrlData <- controlData(lobj)
 negCtrl <- ctrlData[ctrlData[,1]=="NEGATIVE",]
 
-pool = which(grepl("POOL",colnames(negCtrl)));
-
 negCtrl <- negCtrl[,-(1:2)]
+pool = which(grepl("POOL",colnames(negCtrl)));
 n_sam <- dim(negCtrl)[2]
 n_obs <- dim(negCtrl)[1]
 
@@ -52,6 +51,9 @@ write.csv(negCtrl_unpooled, file=paste(savepath,"neg_ctrls.csv",sep = "")) # so 
 
 # Keeping track of the labnr's as well
 
+track_labnr <- as.numeric(colnames(negCtrl_unpooled))
+class(track_labnr)
+write.csv(track_labnr, file=paste(savepath,"track_labnr.csv",sep = "")) # so that I keep track in MatLab
 
 #' #' I suspect that the negative controls are not Gaussian distributed, as 'everyone' assumes without stating
 #' #' it explicitly

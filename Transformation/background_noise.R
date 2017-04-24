@@ -49,7 +49,7 @@ negCtrl_unpooled <- negCtrl[,-pool]
 dim(negCtrl_unpooled)
 write.csv(negCtrl_unpooled, file=paste(savepath,"neg_ctrls.csv",sep = "")) # so that I can do some of it in MatLab
 
-# Keeping track of the labnr's as well
+# Keeping track of the labnr's as well. No need to do that, I exclude neg ctrl probes, not ladies. 
 
 track_labnr <- as.numeric(colnames(negCtrl_unpooled))
 class(track_labnr)
